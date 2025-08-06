@@ -99,7 +99,7 @@ export function TicketForm({ onTicketCreated }: TicketFormProps) {
 
       if (duplicates && duplicates.length > 0) {
         toast({
-          variant: 'warning',
+          variant: 'destructive',
           title: 'Chamado duplicado',
           description: 'Já existe um chamado em aberto para esse tipo de solicitação. Por favor, aguarde o atendimento.'
         });
