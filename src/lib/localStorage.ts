@@ -72,11 +72,45 @@ const initializeData = () => {
 
   // Initialize empty arrays if not exists
   if (!localStorage.getItem(STORAGE_KEYS.users)) {
-    localStorage.setItem(STORAGE_KEYS.users, JSON.stringify([]));
+    // Create default test users
+    const defaultUsers: User[] = [
+      {
+        id: 'user1',
+        email: 'julio@email.com',
+        created_at: getCurrentTimestamp()
+      },
+      {
+        id: 'tech1',
+        email: 'tecnico@email.com',
+        created_at: getCurrentTimestamp()
+      }
+    ];
+    localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(defaultUsers));
   }
+  
   if (!localStorage.getItem(STORAGE_KEYS.profiles)) {
-    localStorage.setItem(STORAGE_KEYS.profiles, JSON.stringify([]));
+    // Create default test profiles
+    const defaultProfiles: Profile[] = [
+      {
+        id: 'user1',
+        name: 'Júlio Silva',
+        email: 'julio@email.com',
+        role: 'user',
+        sector: 'Administrativo',
+        created_at: getCurrentTimestamp()
+      },
+      {
+        id: 'tech1',
+        name: 'Técnico TI',
+        email: 'tecnico@email.com',
+        role: 'technician',
+        sector: 'TI',
+        created_at: getCurrentTimestamp()
+      }
+    ];
+    localStorage.setItem(STORAGE_KEYS.profiles, JSON.stringify(defaultProfiles));
   }
+  
   if (!localStorage.getItem(STORAGE_KEYS.tickets)) {
     localStorage.setItem(STORAGE_KEYS.tickets, JSON.stringify([]));
   }
@@ -125,6 +159,11 @@ export const auth = {
       localStorage.setItem(STORAGE_KEYS.profiles, JSON.stringify(profiles));
       localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(newUser));
       
+      // Trigger custom event for auth state change
+      window.dispatchEvent(new CustomEvent('authStateChange', {
+        detail: { user: newUser, event: 'SIGNED_IN' }
+      }));
+      
       return { data: { user: newUser }, error: null };
     } catch (error) {
       return { data: null, error: { message: 'Erro ao criar usuário' } };
@@ -143,6 +182,12 @@ export const auth = {
       }
       
       localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(user));
+      
+      // Trigger custom event for auth state change
+      window.dispatchEvent(new CustomEvent('authStateChange', {
+        detail: { user, event: 'SIGNED_IN' }
+      }));
+      
       return { data: { user }, error: null };
     } catch (error) {
       return { data: null, error: { message: 'Erro ao fazer login' } };
@@ -151,6 +196,12 @@ export const auth = {
 
   signOut: async () => {
     localStorage.removeItem(STORAGE_KEYS.currentUser);
+    
+    // Trigger custom event for auth state change
+    window.dispatchEvent(new CustomEvent('authStateChange', {
+      detail: { user: null, event: 'SIGNED_OUT' }
+    }));
+    
     return { error: null };
   },
 
@@ -161,18 +212,41 @@ export const auth = {
   },
 
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    // Simple implementation - in real app you'd use proper event listeners
+    // Listen for localStorage changes to trigger auth state changes
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEYS.currentUser) {
+        const user = e.newValue ? JSON.parse(e.newValue) : null;
+        const session = user ? { user } : null;
+        const event = user ? 'SIGNED_IN' : 'SIGNED_OUT';
+        callback(event, session);
+      }
+    };
+
+    // Also listen for custom events
+    const handleCustomEvent = (e: CustomEvent) => {
+      const { user, event } = e.detail;
+      const session = user ? { user } : null;
+      callback(event, session);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('authStateChange', handleCustomEvent as EventListener);
+    
+    // Initial check
     const user = localStorage.getItem(STORAGE_KEYS.currentUser);
     const session = user ? { user: JSON.parse(user) } : null;
     
     setTimeout(() => {
-      callback('SIGNED_IN', session);
+      callback(session ? 'SIGNED_IN' : 'SIGNED_OUT', session);
     }, 100);
     
     return {
       data: {
         subscription: {
-          unsubscribe: () => {}
+          unsubscribe: () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('authStateChange', handleCustomEvent as EventListener);
+          }
         }
       }
     };
