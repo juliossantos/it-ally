@@ -6,10 +6,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, User, Building, AlertCircle, Clock } from 'lucide-react';
-import { TicketWithDetails } from '@/types/database';
+import { TicketWithDetails } from '@/lib/localStorage';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/supabase';
+import { db } from '@/lib/localStorage';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

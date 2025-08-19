@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, User, Building, AlertCircle } from 'lucide-react';
-import { TicketWithDetails } from '@/types/database';
+import { TicketWithDetails } from '@/lib/localStorage';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

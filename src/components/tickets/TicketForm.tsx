@@ -7,8 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/supabase';
-import { ProblemType } from '@/types/database';
+import { db, ProblemType } from '@/lib/localStorage';
 
 interface TicketFormProps {
   onTicketCreated?: () => void;

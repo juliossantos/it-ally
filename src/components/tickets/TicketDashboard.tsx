@@ -7,8 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { TicketForm } from './TicketForm';
 import { TicketCard } from './TicketCard';
 import { TicketDetails } from './TicketDetails';
-import { db } from '@/lib/supabase';
-import { TicketWithDetails } from '@/types/database';
+import { db, TicketWithDetails } from '@/lib/localStorage';
 
 export function TicketDashboard() {
   const [tickets, setTickets] = useState<TicketWithDetails[]>([]);
